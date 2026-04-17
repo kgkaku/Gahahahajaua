@@ -1,0 +1,39 @@
+name: Update Toffee M3U8
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # ফাইল রাইট করার পারমিশন নিশ্চিত করা হলো
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Scraper
+        run: python main.py
+
+      - name: Check and Commit Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          # শুধু ফাইল থাকলেই অ্যাড করবে, না থাকলে এরর দেবে না
+          if [ -f toffee_OTT_Navigator.m3u ]; then
+            git add toffee_OTT_Navigator.m3u toffee_channel_data.json
+            git commit -m "Auto Update: $(date)"
+            git push
+          else
+            echo "No files generated to commit."
+          fi
