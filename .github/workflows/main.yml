@@ -20,14 +20,18 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests
-
-      - name: Run script
+- name: Run script
         run: python main.py
 
       - name: Commit and Push
         run: |
           git config --global user.name "kgkaku"
           git config --global user.email "kgkaku@users.noreply.github.com"
-          git add toffee_OTT_Navigator.m3u toffee_channel_data.json
-          git commit -m "Update Playlist" || echo "No changes to commit"
-          git push
+          # ফাইল তৈরি হয়েছে কি না চেক করে তবেই অ্যাড করুন
+          if [ -f "toffee_OTT_Navigator.m3u" ]; then
+            git add toffee_OTT_Navigator.m3u toffee_channel_data.json
+            git commit -m "Auto Update Playlist"
+            git push
+          else
+            echo "Files not found, skipping commit."
+          fi
